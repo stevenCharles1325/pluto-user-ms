@@ -47,10 +47,10 @@ export default class RegisterValidator {
       rules.minLength(this.minLength.addresses),
     ]),
     gender: schema.enum(['male', 'female', 'prefer not to say'] as const),
-    birth_date: schema.date({}, [
+    birth_date: schema.date({ format: 'iso' }, [
       rules.before(18, 'years'),
     ]),
-    password_confirmation: schema.string({ trim: true }),
+    password_confirmation: schema.string.optional({ trim: true }),
     password: schema.string({ trim: true }, [
       rules.minLength(this.minLength.passwords),
       rules.maxLength(this.maxLength.passwords),

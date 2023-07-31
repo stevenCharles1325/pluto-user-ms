@@ -7,7 +7,7 @@ export default class AuthenticationController {
   public async verify ({ auth, response }: HttpContextContract) {
     await auth.use('jwt').check();
 
-    if (auth.use('api').isLoggedIn) {
+    if (auth.use('jwt').isLoggedIn) {
       return response.ok('Authorized')
     } else {
       return response.unauthorized('Unauthorized')
@@ -38,7 +38,7 @@ export default class AuthenticationController {
     const payload = await request.validate(RegisterValidator)
 
     try {
-      // if (payload.password_confirmation) delete payload.password_confirmation
+      delete payload.password_confirmation
 
       const user = await User.create(payload)
       const token = await auth.use('jwt').generate(user)

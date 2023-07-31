@@ -8,9 +8,12 @@ export default class User extends BaseModel {
   @beforeSave()
   public static async fillEmptyUsername (user: User) {
     const generateUsename = async () => {
+      console.log('GENERATING USERNAME...')
       const url = 'https://randomuser.me/api/?inc=login'
-      const result = await axios.get(url).then(res => res.data);
-      const generatedUname = result.login.username
+      const results = await axios.get(url)
+        .then(res => res.data.results)
+        .catch(console.log)
+      const generatedUname = results?.[0]?.login?.username
 
       if (generatedUname && Boolean(await User.findBy('username', generatedUname))) {
         return await generateUsename()
@@ -20,7 +23,7 @@ export default class User extends BaseModel {
       }
     }
 
-    if (!user.username) generateUsename()
+    if (!user.username?.length) await generateUsename()
   }
 
   @column({ isPrimary: true })
@@ -50,7 +53,9 @@ export default class User extends BaseModel {
   @column()
   public gender: string
 
-  @column()
+  @column({
+    prepare: (value) => value?.toString?.()
+  })
   public birth_date: DateTime
 
   @column()
