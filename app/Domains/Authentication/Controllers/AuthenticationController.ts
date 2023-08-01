@@ -1,11 +1,11 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import LoginValidator from '../Validators/LoginValidator';
-import User from 'App/Domains/User/Models/User';
-import RegisterValidator from '../Validators/RegisterValidator';
+import LoginValidator from '../Validators/LoginValidator'
+import User from 'App/Domains/User/Models/User'
+import RegisterValidator from '../Validators/RegisterValidator'
 
 export default class AuthenticationController {
-  public async verify ({ auth, response }: HttpContextContract) {
-    await auth.use('jwt').check();
+  public async verify({ auth, response }: HttpContextContract) {
+    await auth.use('jwt').check()
 
     if (auth.use('jwt').isLoggedIn) {
       return response.ok('Authorized')
@@ -14,14 +14,14 @@ export default class AuthenticationController {
     }
   }
 
-  public async login ({ auth, request, response }: HttpContextContract) {
+  public async login({ auth, request, response }: HttpContextContract) {
     const payload = await request.validate(LoginValidator)
-    const user = await User.findBy('username', payload.username);
+    const user = await User.findBy('username', payload.username)
 
     if (user) {
       try {
         const token = await auth.use('jwt').attempt(user.email, payload.password)
-        
+
         return response.ok({
           message: 'Successfully logged-in',
           token,
@@ -34,7 +34,7 @@ export default class AuthenticationController {
     }
   }
 
-  public async register ({ auth, request, response }: HttpContextContract) {
+  public async register({ auth, request, response }: HttpContextContract) {
     const payload = await request.validate(RegisterValidator)
 
     try {
@@ -49,7 +49,7 @@ export default class AuthenticationController {
           token,
         })
       } else {
-        return response.internalServerError('Please try again after 5 mins');
+        return response.internalServerError('Please try again after 5 mins')
       }
     } catch (err) {
       console.log(err)
@@ -57,7 +57,7 @@ export default class AuthenticationController {
     }
   }
 
-  public async logout ({ auth, response }: HttpContextContract) {
+  public async logout({ auth, response }: HttpContextContract) {
     await auth.use('jwt').revoke()
 
     return response.ok('Successfully logged-out')

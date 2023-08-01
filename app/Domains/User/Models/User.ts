@@ -3,15 +3,15 @@ import Hash from '@ioc:Adonis/Core/Hash'
 import { column, beforeSave, BaseModel } from '@ioc:Adonis/Lucid/Orm'
 import axios from 'axios'
 
-
 export default class User extends BaseModel {
   @beforeSave()
-  public static async fillEmptyUsername (user: User) {
+  public static async fillEmptyUsername(user: User) {
     const generateUsename = async () => {
       console.log('GENERATING USERNAME...')
       const url = 'https://randomuser.me/api/?inc=login'
-      const results = await axios.get(url)
-        .then(res => res.data.results)
+      const results = await axios
+        .get(url)
+        .then((res) => res.data.results)
         .catch(console.log)
       const generatedUname = results?.[0]?.login?.username
 
@@ -54,7 +54,7 @@ export default class User extends BaseModel {
   public gender: string
 
   @column({
-    prepare: (value) => value?.toString?.()
+    prepare: (value) => value?.toFormat('yyyy-MM-dd HH-mm-ss'),
   })
   public birth_date: DateTime
 
@@ -68,7 +68,7 @@ export default class User extends BaseModel {
   public updatedAt: DateTime
 
   @beforeSave()
-  public static async hashPassword (user: User) {
+  public static async hashPassword(user: User) {
     if (user.$dirty.password) {
       user.password = await Hash.make(user.password)
     }
