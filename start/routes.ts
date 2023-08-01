@@ -1,4 +1,7 @@
 import { join } from 'path'
 import { requireAll } from '@ioc:Adonis/Core/Helpers'
+import Route from '@ioc:Adonis/Core/Route'
 
-requireAll(join(__dirname, '../app/Routes'))
+Route.group(() => {
+  requireAll(join(__dirname, '../app/Routes/V1'))
+}).prefix('v1')

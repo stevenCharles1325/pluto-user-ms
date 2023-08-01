@@ -1,13 +1,16 @@
 import { DateTime } from 'luxon'
 import Hash from '@ioc:Adonis/Core/Hash'
-import { column, beforeSave, BaseModel } from '@ioc:Adonis/Lucid/Orm'
+import { column, beforeSave, BaseModel, manyToMany, ManyToMany } from '@ioc:Adonis/Lucid/Orm'
 import axios from 'axios'
+import search from 'App/Modules/Scopes/search'
+import Role from 'App/Models/Role'
 
 export default class User extends BaseModel {
   @beforeSave()
   public static async fillEmptyUsername(user: User) {
     const generateUsename = async () => {
       console.log('GENERATING USERNAME...')
+
       const url = 'https://randomuser.me/api/?inc=login'
       const results = await axios
         .get(url)
@@ -61,6 +64,11 @@ export default class User extends BaseModel {
   @column()
   public rememberMeToken: string | null
 
+  @manyToMany(() => Role, {
+    pivotTable: 'role_users',
+  })
+  public roles: ManyToMany<typeof Role>
+
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 
@@ -73,4 +81,9 @@ export default class User extends BaseModel {
       user.password = await Hash.make(user.password)
     }
   }
+
+  public static search = search(
+    ['id', 'birth_date', 'created_at', 'updated_at', 'gender', 'email'],
+    ['first_name', 'middle_name', 'last_name', 'username', 'address']
+  )
 }
