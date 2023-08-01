@@ -5,6 +5,15 @@ export default class Permission extends BaseModel {
   @column({ isPrimary: true })
   public id: number
 
+  @column()
+  public title: string
+
+  @column()
+  public kebab: string
+
+  @column()
+  public description?: string | null
+
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 

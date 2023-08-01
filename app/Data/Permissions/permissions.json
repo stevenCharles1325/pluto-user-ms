@@ -1,0 +1,66 @@
+[
+  {
+    "title": "CREATE PERMISSIONS",
+    "kebab": "create-permissions"
+  },
+  {
+    "title": "VIEW PERMISSIONS",
+    "kebab": "view-permissions"
+  },
+  {
+    "title": "DELETE PERMISSIONS",
+    "kebab": "delete-permissions"
+  },
+  {
+    "title": "ARCHIVE PERMISSIONS",
+    "kebab": "archive-permissions"
+  },
+  {
+    "title": "CREATE ROLES",
+    "kebab": "create-roles"
+  },
+  {
+    "title": "VIEW ROLES",
+    "kebab": "view-roles"
+  },
+  {
+    "title": "DELETE ROLES",
+    "kebab": "delete-roles"
+  },
+  {
+    "title": "ARCHIVE ROLES",
+    "kebab": "archive-roles"
+  },
+  {
+    "title": "VIEW ALL USERS",
+    "kebab": "view-all-users"
+  },
+  {
+    "title": "VIEW USER",
+    "kebab": "view-user"
+  },
+  {
+    "title": "UPDATE ALL USERS",
+    "kebab": "update-all-users"
+  },
+  {
+    "title": "UPDATE USER",
+    "kebab": "update-user"
+  },
+  {
+    "title": "DELETE ALL USERS",
+    "kebab": "delete-all-users"
+  },
+  {
+    "title": "DELETE ALL USERS",
+    "kebab": "delete-user"
+  },
+  {
+    "title": "ARCHIVE ALL USERS",
+    "kebab": "archive-all-users"
+  },
+  {
+    "title": "ARCHIVE USER",
+    "kebab": "archive-user"
+  }
+]

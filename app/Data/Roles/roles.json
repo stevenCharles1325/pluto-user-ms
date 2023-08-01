@@ -1,0 +1,19 @@
+[
+    {
+        "title": "SYSTEM ADMISNISTRATOR",
+        "linked_permissions": ["*"]
+    },
+    {
+        "title": "ADMISNISTRATOR",
+        "linked_permissions": [
+            "view-all-users",
+            "view-user",
+            "update-all-users",
+            "update-user",
+            "delete-all-users",
+            "delete-user",
+            "archive-all-users",
+            "archive-user"
+        ]
+    }
+]

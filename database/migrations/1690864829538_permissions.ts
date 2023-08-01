@@ -9,8 +9,9 @@ export default class extends BaseSchema {
 
       table.string('title').notNullable()
       table.string('kebab').notNullable().comment('This could be the kebab-cased of the title')
-      table.string('description').notNullable()
+      table.string('description').nullable()
 
+      table.unique(['title', 'kebab'])
       /**
        * Uses timestamptz for PostgreSQL and DATETIME2 for MSSQL
        */
