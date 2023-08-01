@@ -15,14 +15,19 @@ export default class extends BaseSchema {
       table.string('middle_name').nullable()
       table.string('last_name').notNullable()
       table.string('address', 255).nullable()
-      table.enum('gender', ['male', 'female', 'prefer not to say']).nullable().defaultTo('prefer not to say')
+      table
+        .enum('gender', ['male', 'female', 'prefer not to say'])
+        .nullable()
+        .defaultTo('prefer not to say')
 
       table.timestamp('birth_date', { useTz: true }).notNullable()
+
       /**
        * Uses timestampz for PostgreSQL and DATETIME2 for MSSQL
        */
       table.timestamp('created_at', { useTz: true }).notNullable()
       table.timestamp('updated_at', { useTz: true }).notNullable()
+      table.timestamp('deleted_at', { useTz: true }).nullable()
     })
   }
 

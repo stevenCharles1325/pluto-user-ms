@@ -8,14 +8,14 @@ export default class LoginValidator {
     username: schema.string({ trim: true }, [
       rules.exists({
         table: 'users',
-        column: 'username'
-      })
+        column: 'username',
+      }),
     ]),
     password: schema.string({ trim: true }),
   })
 
   public messages: CustomMessages = {
-    "username.exists": "Username does not exist",
-    required: "{{ field }} is required",
+    'username.exists': 'Username does not exist',
+    'required': '{{ field }} is required',
   }
 }

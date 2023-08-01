@@ -1,5 +1,7 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import AuthUser from '@ioc:AuthUser'
+import UserCreateValidator from 'App/Validators/UserCreateValidator'
+import UserUpdateValidator from 'App/Validators/UserUpdateValidator'
 import User from '../Models/User'
 
 export default class UsersController {
@@ -10,6 +12,7 @@ export default class UsersController {
 
     if (hasPermission) {
       const query = await User.query()
+        // .whereNot('id', auth?.user?.id)
         .apply((scope) => scope.search(request))
         .paginate(page, limit)
 
@@ -19,15 +22,85 @@ export default class UsersController {
     return response.unauthorized('You have no permissions to view users')
   }
 
-  // public async create({ }: HttpContextContract) { }
+  public async store({ auth, request, response }: HttpContextContract) {
+    await auth.use('jwt').authenticate()
+    const hasPermission = await AuthUser.hasPermission('create-user')
 
-  // public async store({ }: HttpContextContract) { }
+    if (hasPermission) {
+      const payload = await request.validate(UserCreateValidator)
 
-  // public async show({ }: HttpContextContract) { }
+      try {
+        const user = await User.create(payload)
+        return response.created({
+          message: 'User created successfully',
+          user,
+        })
+      } catch (error) {
+        console.log(error)
+        return response.internalServerError('Please try again after 5 mins')
+      }
+    }
 
-  // public async edit({ }: HttpContextContract) { }
+    return response.unauthorized('You have no permissions to create users')
+  }
 
-  // public async update({ }: HttpContextContract) { }
+  public async show({ auth, params, response }: HttpContextContract) {
+    await auth.use('jwt').authenticate()
+    const { id } = params
+    const hasPermission = await AuthUser.hasPermission('view-user')
 
-  // public async destroy({ }: HttpContextContract) { }
+    if (hasPermission) {
+      const user = await User.find(id)
+      return response.ok(user)
+    }
+
+    return response.unauthorized('You have no permissions to view users')
+  }
+
+  public async update({ auth, params, request, response }: HttpContextContract) {
+    await auth.use('jwt').authenticate()
+    const { id } = params
+    const hasPermission = await AuthUser.hasPermission('update-user')
+
+    if (hasPermission) {
+      const payload = await request.validate(UserUpdateValidator)
+      const user = await User.findOrFail(id)
+
+      user.merge(payload)
+      await user.save()
+      return response.ok(user)
+    }
+
+    return response.unauthorized('You have no permissions to update users')
+  }
+
+  public async softDelete({ auth, params, response }: HttpContextContract) {
+    await auth.use('jwt').authenticate()
+    const { id } = params
+    const hasPermission = await AuthUser.hasPermission('archive-user')
+
+    if (hasPermission) {
+      const user = await User.findOrFail(id)
+
+      await user.softDelete()
+      return response.ok(user)
+    }
+
+    return response.unauthorized('You have no permissions to temporarily delete users')
+  }
+
+  public async destroy({ auth, params, response }: HttpContextContract) {
+    await auth.use('jwt').authenticate()
+    const { id } = params
+    const hasPermission = await AuthUser.hasPermission('delete-user')
+
+    if (hasPermission) {
+      const user = await User.findOrFail(id)
+
+      await user.delete()
+      return response.ok(user)
+    }
+
+    return response.unauthorized('You have no permissions to permanently delete users')
+  }
 }
