@@ -23,7 +23,8 @@
     "@adonisjs/lucid",
     "@adonisjs/auth",
     "adonis5-jwt",
-    "./providers/AuthUserProvider"
+    "./providers/AuthUserProvider",
+    "./providers/PhoneNumberProvider"
   ],
   "aceProviders": [
     "@adonisjs/repl"

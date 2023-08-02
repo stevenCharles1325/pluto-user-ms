@@ -1,4 +1,5 @@
 import HttpContext from '@ioc:Adonis/Core/HttpContext'
+import User from 'App/Domains/User/Models/User'
 
 export default class AuthUserService {
   private role = {
@@ -6,12 +7,29 @@ export default class AuthUserService {
     ADMIN: 'ADMINISTRATOR',
   }
 
+  public user: User
+
+  public async getUser(): Promise<void> {
+    const ctx = HttpContext.get()
+
+    if (ctx) {
+      await ctx.auth.use('jwt').authenticate()
+      const user = ctx.auth.use('jwt').user!
+      this.user = user
+
+      return
+    }
+
+    throw new Error('Cannot access http context')
+  }
+
   public async hasPermission(...permissions: string[]): Promise<Boolean> {
     const ctx = HttpContext.get()
 
     if (ctx) {
       await ctx.auth.use('jwt').authenticate()
-      const user = ctx.auth.use('jwt').user
+      const user = ctx.auth.use('jwt').user!
+      this.user = user
 
       await user?.load((loader) => loader.load('roles', (roles) => roles.preload('permissions')))
 
@@ -34,7 +52,8 @@ export default class AuthUserService {
 
     if (ctx) {
       await ctx.auth.use('jwt').authenticate()
-      const user = ctx.auth.use('jwt').user
+      const user = ctx.auth.use('jwt').user!
+      this.user = user
 
       await user?.load('roles')
       const userRoles = user?.roles?.map(({ title }) => title) ?? []
@@ -55,7 +74,8 @@ export default class AuthUserService {
 
     if (ctx) {
       await ctx.auth.use('jwt').authenticate()
-      const user = ctx.auth.use('jwt').user
+      const user = ctx.auth.use('jwt').user!
+      this.user = user
 
       await user?.load('roles')
       const userRoles = user?.roles?.map(({ title }) => title) ?? []
@@ -76,7 +96,8 @@ export default class AuthUserService {
 
     if (ctx) {
       await ctx.auth.use('jwt').authenticate()
-      const user = ctx.auth.use('jwt').user
+      const user = ctx.auth.use('jwt').user!
+      this.user = user
 
       await user?.load('roles')
       const userRoles = user?.roles?.map(({ title }) => title) ?? []

@@ -12,7 +12,7 @@ export default class UsersController {
 
     if (hasPermission) {
       const query = await User.query()
-        // .whereNot('id', auth?.user?.id)
+        .whereNot('id', AuthUser.user.id)
         .apply((scope) => scope.search(request))
         .paginate(page, limit)
 
