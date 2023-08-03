@@ -1,8 +1,10 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import AuthUser from '@ioc:AuthUser'
-import UserCreateValidator from 'App/Validators/UserCreateValidator'
-import UserUpdateValidator from 'App/Validators/UserUpdateValidator'
+import PhoneNumberCreateValidator from 'App/Domains/PhoneNumber/Validators/PhoneNumberCreateValidator'
+import PhoneNumberUpdateValidator from 'App/Domains/PhoneNumber/Validators/PhoneNumberUpdateValidator'
 import User from '../Models/User'
+import UserCreateValidator from '../Validators/UserCreateValidator'
+import UserUpdateValidator from '../Validators/UserUpdateValidator'
 
 export default class UsersController {
   public async index({ auth, request, response }: HttpContextContract) {
@@ -28,9 +30,12 @@ export default class UsersController {
 
     if (hasPermission) {
       const payload = await request.validate(UserCreateValidator)
+      const phoneNumber = await request.validate(PhoneNumberCreateValidator)
 
       try {
         const user = await User.create(payload)
+        await user.related('phoneNumbers').create({ userId: user.id, ...phoneNumber })
+
         return response.created({
           message: 'User created successfully',
           user,
@@ -60,11 +65,17 @@ export default class UsersController {
   public async update({ auth, params, request, response }: HttpContextContract) {
     await auth.use('jwt').authenticate()
     const { id } = params
+
     const hasPermission = await AuthUser.hasPermission('update-user')
+    const phoneNumber = await request.validate(PhoneNumberUpdateValidator)
 
     if (hasPermission) {
       const payload = await request.validate(UserUpdateValidator)
-      const user = await User.findOrFail(id)
+      const user = await User.query().where({ id }).firstOrFail()
+
+      if (phoneNumber) {
+        user.related('phoneNumbers').updateOrCreate(phoneNumber, phoneNumber)
+      }
 
       user.merge(payload)
       await user.save()

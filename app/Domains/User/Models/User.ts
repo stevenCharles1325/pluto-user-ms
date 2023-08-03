@@ -1,9 +1,20 @@
+import { string } from '@ioc:Adonis/Core/Helpers'
 import { DateTime } from 'luxon'
 import Hash from '@ioc:Adonis/Core/Hash'
-import { column, beforeSave, BaseModel, manyToMany, ManyToMany } from '@ioc:Adonis/Lucid/Orm'
+import {
+  column,
+  beforeSave,
+  BaseModel,
+  manyToMany,
+  ManyToMany,
+  hasMany,
+  HasMany,
+  computed,
+} from '@ioc:Adonis/Lucid/Orm'
 import axios from 'axios'
 import search from 'App/Modules/Scopes/search'
 import Role from 'App/Models/Role'
+import PhoneNumber from 'App/Domains/PhoneNumber/Models/PhoneNumber'
 
 export default class User extends BaseModel {
   @beforeSave()
@@ -29,6 +40,15 @@ export default class User extends BaseModel {
     if (!user.username?.length) await generateUsename()
   }
 
+  @computed()
+  public get fullName() {
+    if (this.middleName) {
+      return string.titleCase(`${this.firstName} ${this.middleName} ${this.lastName}`)
+    } else {
+      return string.titleCase(`${this.firstName} ${this.lastName}`)
+    }
+  }
+
   @column({ isPrimary: true })
   public id: number
 
@@ -41,25 +61,36 @@ export default class User extends BaseModel {
   @column()
   public username: string
 
-  @column()
-  public first_name: string
+  @column({
+    prepare: (value: string) => value.toLowerCase(),
+  })
+  public firstName: string
 
-  @column()
-  public middle_name: string
+  @column({
+    prepare: (value: string) => value.toLowerCase(),
+  })
+  public middleName: string
 
-  @column()
-  public last_name: string
+  @column({
+    prepare: (value: string) => value.toLowerCase(),
+  })
+  public lastName: string
 
-  @column()
+  @column({
+    prepare: (value: string) => value.toLowerCase(),
+  })
   public address: string
 
   @column()
   public gender: string
 
+  @hasMany(() => PhoneNumber)
+  public phoneNumbers: HasMany<typeof PhoneNumber>
+
   @column({
     prepare: (value) => value?.toFormat('yyyy-MM-dd HH-mm-ss'),
   })
-  public birth_date: DateTime
+  public birthDate: DateTime
 
   @column()
   public rememberMeToken: string | null

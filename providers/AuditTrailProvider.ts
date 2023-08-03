@@ -19,7 +19,7 @@ import type { ApplicationContract } from '@ioc:Adonis/Core/Application'
 | }
 |
 */
-export default class PhoneNumberProvider {
+export default class AuditTrailProvider {
   constructor(protected app: ApplicationContract) {}
 
   public register() {

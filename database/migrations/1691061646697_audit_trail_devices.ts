@@ -1,22 +1,25 @@
 import BaseSchema from '@ioc:Adonis/Lucid/Schema'
 
 export default class extends BaseSchema {
-  protected tableName = 'phone_numbers'
+  protected tableName = 'audit_trail_devices'
 
   public async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
 
-      table.string('country_code').notNullable()
-      table.string('phone_number').notNullable()
-      table.integer('user_id').notNullable().unsigned().references('users.id').onDelete('CASCADE')
-      table.boolean('is_primary').defaultTo(true)
+      table.integer('audit_trail_id').unsigned().references('audit_trails.id').onDelete('CASCADE')
+
+      table.string('name').notNullable()
+      table.string('country').notNullable()
+      table.string('region').notNullable()
+      table.string('latitude').notNullable()
+      table.string('longitude').notNullable()
+      table.string('ip_address').notNullable()
 
       /**
        * Uses timestamptz for PostgreSQL and DATETIME2 for MSSQL
        */
       table.timestamp('created_at', { useTz: true })
-      table.timestamp('updated_at', { useTz: true })
     })
   }
 

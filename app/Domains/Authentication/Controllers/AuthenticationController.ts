@@ -2,6 +2,7 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import LoginValidator from '../Validators/LoginValidator'
 import User from 'App/Domains/User/Models/User'
 import RegisterValidator from '../Validators/RegisterValidator'
+import PhoneNumberCreateValidator from 'App/Domains/PhoneNumber/Validators/PhoneNumberCreateValidator'
 
 export default class AuthenticationController {
   public async verify({ auth, response }: HttpContextContract) {
@@ -36,14 +37,17 @@ export default class AuthenticationController {
 
   public async register({ auth, request, response }: HttpContextContract) {
     const payload = await request.validate(RegisterValidator)
+    const phoneNumber = await request.validate(PhoneNumberCreateValidator)
 
     try {
-      delete payload.password_confirmation
+      delete payload.passwordConfirmation
 
       const user = await User.create(payload)
-      const token = await auth.use('jwt').generate(user)
+      await user.related('phoneNumbers').create({ userId: user.id, ...phoneNumber })
 
       if (user) {
+        const token = await auth.use('jwt').generate(user)
+
         return response.created({
           message: 'Successfully registered',
           token,
@@ -53,7 +57,7 @@ export default class AuthenticationController {
       }
     } catch (err) {
       console.log(err)
-      return response.internalServerError(err)
+      return response.internalServerError('Please try again after 5 mins')
     }
   }
 

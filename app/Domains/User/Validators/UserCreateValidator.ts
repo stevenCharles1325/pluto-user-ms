@@ -1,5 +1,6 @@
 import { schema, rules, CustomMessages } from '@ioc:Adonis/Core/Validator'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import { string } from '@ioc:Adonis/Core/Helpers'
 
 export default class UserCreateValidator {
   private minLength = {
@@ -16,15 +17,15 @@ export default class UserCreateValidator {
   constructor(protected ctx: HttpContextContract) {}
 
   public schema = schema.create({
-    first_name: schema.string({ trim: true, escape: true }, [
+    firstName: schema.string({ trim: true, escape: true }, [
       rules.minLength(this.minLength.names),
       rules.maxLength(20),
     ]),
-    middle_name: schema.string.optional({ trim: true, escape: true }, [
+    middleName: schema.string.optional({ trim: true, escape: true }, [
       rules.minLength(this.minLength.names),
       rules.maxLength(20),
     ]),
-    last_name: schema.string({ trim: true, escape: true }, [
+    lastName: schema.string({ trim: true, escape: true }, [
       rules.minLength(this.minLength.names),
       rules.maxLength(20),
     ]),
@@ -47,7 +48,7 @@ export default class UserCreateValidator {
       rules.minLength(this.minLength.addresses),
     ]),
     gender: schema.enum(['male', 'female', 'prefer not to say'] as const),
-    birth_date: schema.date({ format: 'iso' }, [rules.before(18, 'years')]),
+    birthDate: schema.date({ format: 'iso' }, [rules.before(18, 'years')]),
     password: schema.string({ trim: true }, [
       rules.minLength(this.minLength.passwords),
       rules.maxLength(this.maxLength.passwords),
@@ -56,7 +57,7 @@ export default class UserCreateValidator {
 
   public messages: CustomMessages = {
     '*': (field, rule, _, options) => {
-      const split = (str: string) => str.split('_').join(' ').trim()
+      const split = (str: string) => string.noCase(str).trim()
 
       switch (rule) {
         case 'minLength':
@@ -73,7 +74,7 @@ export default class UserCreateValidator {
       }
     },
     'unique': '{{ field }} already exists',
-    'birth_date.before': 'you must be 18 yrs-old and above',
+    'birthDate.before': 'you must be 18 yrs-old and above',
     'gender.enum': 'gender values must be one of these options {{ options.choices }}',
     'email.email': 'email is invalid',
   }
