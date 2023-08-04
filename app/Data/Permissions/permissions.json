@@ -32,32 +32,20 @@
     "kebab": "archive-roles"
   },
   {
-    "title": "VIEW ALL USERS",
-    "kebab": "view-all-users"
-  },
-  {
     "title": "VIEW USER",
     "kebab": "view-user"
   },
   {
-    "title": "UPDATE ALL USERS",
-    "kebab": "update-all-users"
+    "title": "CREATE USER",
+    "kebab": "create-user"
   },
   {
     "title": "UPDATE USER",
     "kebab": "update-user"
   },
   {
-    "title": "DELETE ALL USERS",
-    "kebab": "delete-all-users"
-  },
-  {
-    "title": "DELETE ALL USERS",
+    "title": "DELETE USERS",
     "kebab": "delete-user"
-  },
-  {
-    "title": "ARCHIVE ALL USERS",
-    "kebab": "archive-all-users"
   },
   {
     "title": "ARCHIVE USER",

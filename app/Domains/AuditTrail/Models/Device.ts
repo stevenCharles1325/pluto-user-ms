@@ -3,6 +3,8 @@ import { BaseModel, column, HasOne, hasOne } from '@ioc:Adonis/Lucid/Orm'
 import AuditTrail from './AuditTrail'
 
 export default class Device extends BaseModel {
+  public static table = 'audit_trail_devices'
+
   @column({ isPrimary: true })
   public id: number
 

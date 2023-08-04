@@ -1,24 +1,46 @@
+import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import HttpContext from '@ioc:Adonis/Core/HttpContext'
 import AuditTrail from 'App/Domains/AuditTrail/Models/AuditTrail'
 import User from 'App/Domains/User/Models/User'
 import LogDetails from 'App/Interfaces/LogDetails'
+import useragent from 'useragent'
+import geoip from 'geoip-lite'
+import logs from 'App/Domains/AuditTrail/Logs'
 
 export default class AuditTrailService {
   constructor(private auditTrail: typeof AuditTrail) {}
 
-  private generateDescription(logDetails: LogDetails): string {
-    // const { relatedId, actionType, description } = logDetails
+  private async getReqAndDeviceInformation(
+    auditTrailId: number,
+    ctx: HttpContextContract
+  ): Promise<object> {
+    const ip = ctx.request.ip()
+    const geo = geoip.lookup(ip)
+    const agent = useragent.parse(ctx.request.header('user-agent'))
 
-    return 'Sample AuditTrail Description'
+    return {
+      auditTrailId,
+
+      // Agent information
+      name: agent.toAgent(),
+
+      // Geo information
+      country: geo?.country ?? 'N/A',
+      region: geo?.region ?? 'N/A',
+      latitude: geo?.ll?.[0] ?? 'N/A',
+      longitude: geo?.ll?.[1] ?? 'N/A',
+      ipAddress: ip,
+    }
   }
 
   public async log(logDetails: LogDetails) {
     const ctx = HttpContext.get()
-    const { relatedId, description } = logDetails
+    const { relatedId, actionType, description } = logDetails
 
+    const action = new logs[actionType](logDetails, ctx)
     if (ctx) {
       try {
-        const id = ctx?.auth.user!.id
+        const id = ctx?.auth.use('jwt').user!.id
         const user = await User.findOrFail(id)
         await user.load('phoneNumbers')
         await user.load('roles')
@@ -27,8 +49,9 @@ export default class AuditTrailService {
           creatorId: id,
           creatorEmail: user.email,
           creatorFullName: user.fullName,
-          creatorPhoneNumber: user?.phoneNumbers?.[0].phoneNumber,
-          description: description ?? this.generateDescription(logDetails),
+          creatorPhoneNumber: user?.phoneNumbers?.[0]?.phoneNumber,
+          actionType: actionType,
+          description: description ?? (await action.description()),
         }
 
         const createdLog = await this.auditTrail.create(log)
@@ -45,10 +68,16 @@ export default class AuditTrailService {
             relatedFullName: relatedUser.fullName,
           }
 
+          console.log('[AUDIT TRAIL]: Successfully created log related user')
           await createdLog.related('relatedUsers').create(related)
         }
 
-        console.log('Successfully created log')
+        const deviceInfo = await this.getReqAndDeviceInformation(createdLog.id, ctx)
+
+        await createdLog.related('device').create(deviceInfo)
+        console.log('[AUDIT TRAIL]: Successfully created log device information')
+
+        console.log('[AUDIT TRAIL]: Successfully created log')
         return createdLog
       } catch (err) {
         console.log(err)
@@ -57,6 +86,6 @@ export default class AuditTrailService {
       }
     }
 
-    throw new Error('Cannot access HTTP context')
+    throw new Error('[AUDIT TRAIL]: Cannot access HTTP context')
   }
 }

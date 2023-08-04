@@ -2,6 +2,7 @@ import { DateTime } from 'luxon'
 import { BaseModel, column, HasMany, hasMany, hasOne, HasOne } from '@ioc:Adonis/Lucid/Orm'
 import User from 'App/Domains/User/Models/User'
 import RelatedUser from './RelatedUser'
+import Device from './Device'
 
 export default class AuditTrail extends BaseModel {
   @column({ isPrimary: true })
@@ -29,6 +30,11 @@ export default class AuditTrail extends BaseModel {
     foreignKey: 'creatorId',
   })
   public creator: HasOne<typeof User>
+
+  @hasOne(() => Device, {
+    foreignKey: 'auditTrailId',
+  })
+  public device: HasOne<typeof Device>
 
   @hasMany(() => RelatedUser, {
     foreignKey: 'auditTrailId',

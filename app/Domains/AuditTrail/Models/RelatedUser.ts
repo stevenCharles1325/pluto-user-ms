@@ -4,6 +4,8 @@ import AuditTrail from './AuditTrail'
 import User from 'App/Domains/User/Models/User'
 
 export default class RelatedUser extends BaseModel {
+  public static table = 'audit_trail_related_users'
+
   @column({ isPrimary: true })
   public id: number
 

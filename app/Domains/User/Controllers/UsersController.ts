@@ -1,4 +1,5 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import AuditTrail from '@ioc:AuditTrail'
 import AuthUser from '@ioc:AuthUser'
 import PhoneNumberCreateValidator from 'App/Domains/PhoneNumber/Validators/PhoneNumberCreateValidator'
 import PhoneNumberUpdateValidator from 'App/Domains/PhoneNumber/Validators/PhoneNumberUpdateValidator'
@@ -36,6 +37,7 @@ export default class UsersController {
         const user = await User.create(payload)
         await user.related('phoneNumbers').create({ userId: user.id, ...phoneNumber })
 
+        await AuditTrail.log({ actionType: 'user-create', relatedId: user.id })
         return response.created({
           message: 'User created successfully',
           user,
@@ -77,6 +79,7 @@ export default class UsersController {
         user.related('phoneNumbers').updateOrCreate(phoneNumber, phoneNumber)
       }
 
+      await AuditTrail.log({ actionType: 'user-update', relatedId: user.id })
       user.merge(payload)
       await user.save()
       return response.ok(user)
@@ -93,6 +96,7 @@ export default class UsersController {
     if (hasPermission) {
       const user = await User.findOrFail(id)
 
+      await AuditTrail.log({ actionType: 'user-archive', relatedId: user.id })
       await user.softDelete()
       return response.ok(user)
     }
@@ -108,6 +112,7 @@ export default class UsersController {
     if (hasPermission) {
       const user = await User.findOrFail(id)
 
+      await AuditTrail.log({ actionType: 'user-delete', relatedId: user.id })
       await user.delete()
       return response.ok(user)
     }

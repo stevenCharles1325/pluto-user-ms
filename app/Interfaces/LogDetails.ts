@@ -1,5 +1,5 @@
 export default interface LogDetails {
-  relatedId: number
   actionType: string
+  relatedId?: number | null | undefined
   description?: string | null | undefined
 }

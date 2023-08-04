@@ -24,6 +24,12 @@ export default class AuditTrailProvider {
 
   public register() {
     // Register your own bindings
+    this.app.container.singleton('AuditTrail', () => {
+      const AuditTrailProvider = require('App/Services/AuditTrail').default
+      const AuditTrail = require('App/Domains/AuditTrail/Models/AuditTrail').default
+
+      return new AuditTrailProvider(AuditTrail)
+    })
   }
 
   public async boot() {

@@ -3,6 +3,7 @@ import LoginValidator from '../Validators/LoginValidator'
 import User from 'App/Domains/User/Models/User'
 import RegisterValidator from '../Validators/RegisterValidator'
 import PhoneNumberCreateValidator from 'App/Domains/PhoneNumber/Validators/PhoneNumberCreateValidator'
+import AuditTrail from '@ioc:AuditTrail'
 
 export default class AuthenticationController {
   public async verify({ auth, response }: HttpContextContract) {
@@ -23,6 +24,7 @@ export default class AuthenticationController {
       try {
         const token = await auth.use('jwt').attempt(user.email, payload.password)
 
+        await AuditTrail.log({ actionType: 'user-login' })
         return response.ok({
           message: 'Successfully logged-in',
           token,
@@ -48,6 +50,7 @@ export default class AuthenticationController {
       if (user) {
         const token = await auth.use('jwt').generate(user)
 
+        await AuditTrail.log({ actionType: 'user-register' })
         return response.created({
           message: 'Successfully registered',
           token,
@@ -61,9 +64,17 @@ export default class AuthenticationController {
     }
   }
 
+  public async refresh({ auth, request, response }: HttpContextContract) {
+    const refreshToken = request.input('refreshToken')
+    const jwt = await auth.use('jwt').loginViaRefreshToken(refreshToken)
+
+    return response.ok(jwt)
+  }
+
   public async logout({ auth, response }: HttpContextContract) {
     await auth.use('jwt').revoke()
 
+    await AuditTrail.log({ actionType: 'user-logout' })
     return response.ok('Successfully logged-out')
   }
 }
